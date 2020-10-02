@@ -16,8 +16,18 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
+            const branch = context.payload.pull_request.head.ref;
             core.info("Branch: " + context.payload.pull_request.head.ref);
-            core.exportVariable("PR_BRANCH_CHECK", "failed");
+            const branchRegExp = RegExp('^(fix|feature|test|merge)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
+            const result = branchRegExp.exec(str1);
+            if (result != null) {
+              core.info("Prefix: " + result[1]);
+              core.info("Anchor: " + result[2]);
+              core.exportVariable("PR_BRANCH_CHECK", "success");
+            }
+            else {
+              core.exportVariable("PR_BRANCH_CHECK", "failed");
+            }
 
       - name: Validate Title
         uses: actions/github-script@v3
