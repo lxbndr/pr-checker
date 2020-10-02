@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/github-script@v3
         with:
+          script: |
+            core.setOutput("checkResult", "failed");
+
+      - uses: actions/github-script@v3
+        with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            core.setFailed("Failed");
+            const inp = core.getInput("checkResult");
+            core.setFailed(inp);
