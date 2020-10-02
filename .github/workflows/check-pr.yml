@@ -5,7 +5,8 @@ name: Validate Pull Request
 on:
   pull_request:
     branches: [ '*' ]
-
+    types: [opened, reopened, edited]
+    
 jobs:
   validate:
     runs-on: ubuntu-latest
