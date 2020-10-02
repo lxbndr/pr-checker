@@ -12,13 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/github-script@v3
+      - name: Validate Branch
+        uses: actions/github-script@v3
         with:
           script: |
-            core.exportVariable("checkResult", "failed");
+            core.info("Branch: " + core.context.ref);
+            core.exportVariable("PR_BRANCH_CHECK", "failed");
 
+      - name: Validate Title
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.info("Pull  request title: " + context.payload.pull_request.title);
+            core.exportVariable("PR_TITLE_CHECK", "failed");
+      
       - uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            core.setFailed(process.env.checkResult);
+            if (process.env.PR_BRANCH_CHECK == "failed" || process.env.PR_TITLE_CHECK == "failed") {
+              core.setFailed("Pull request doesn't meet the requirements");
+            }
