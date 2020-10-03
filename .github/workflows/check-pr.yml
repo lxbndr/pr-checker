@@ -70,6 +70,7 @@ jobs:
             const branchResult = JSON.parse(process.env.BRANCH_RESULT);
             const titleResult = JSON.parse(process.env.TITLE_RESULT);
             const allErrors = branchResult.errors + titleResult.errors;
+            core.info(allErrors);
             allErrors.forEach(function(errorDescription) {
               core.error(errorDescription);
             });
