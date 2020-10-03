@@ -13,7 +13,6 @@ jobs:
 
     steps:
       - name: Validate Branch
-        id: validate-branch
         uses: actions/github-script@v3
         with:
           script: |
@@ -28,11 +27,11 @@ jobs:
               core.info("Anchor: " + result[2]);
               
               if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                return {errors: ["Task anchor is required"]};
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Task anchor is required"]}));
               }
             }
             else {
-              return {errors: ["Branch name doesn't match required format"]};
+              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Task anchor is required"]}));
             }
 
       - name: Validate Title
@@ -43,7 +42,8 @@ jobs:
             core.info("Pull request title: " + context.payload.pull_request.title);
 
       - uses: actions/github-script@v3
+        
         with:
           script: |
-            const branchResult = JSON.parse('${{ steps.validate-branch.outputs.result }}');
+            const branchResult = JSON.parse(process.env.BRANCH_RESULT);
             core.info("Input: " + branchResult);
