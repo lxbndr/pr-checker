@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Validate Branch
-        id: validate-branch
+        id: validate_branch
         uses: actions/github-script@v3
         with:
           script: |
@@ -42,9 +42,8 @@ jobs:
       
       - uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            core.info("Input: ${{steps.validate-branch.outputs.result}}");
+            core.info("Input: ${{ steps.validate_branch.outputs.result }}");
             if (process.env.PR_BRANCH_CHECK == "failed" || process.env.PR_TITLE_CHECK == "failed") {
               core.setFailed("Pull request doesn't meet the requirements");
             }
