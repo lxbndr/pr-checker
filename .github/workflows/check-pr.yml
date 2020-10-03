@@ -28,7 +28,7 @@ jobs:
               core.exportVariable("PR_BRANCH_CHECK", "success");
             }
             else {
-              core.error("Branch name doesn't match required format");
+              core.setFailed("Branch name doesn't match required format");
             }
 
       - name: Validate Title
