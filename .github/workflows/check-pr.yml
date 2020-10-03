@@ -22,17 +22,17 @@ jobs:
             const branchRegExp = RegExp('^(fix|feature|test|merge)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
             const result = branchRegExp.exec(branch);
             if (result != null) {
-              const prefix = result[1]
-              const anchor = result[2]
+              const prefix = result[1];
+              const anchor = result[2];
               core.info("Prefix: " + result[1]);
               core.info("Anchor: " + result[2]);
               
               if prefix != "test" && prefix != "merge" && anchor == undefined {
-                return {errors: ["Task anchor is required"]}
+                return {errors: ["Task anchor is required"]};
               }
             }
             else {
-              return {errors: ["Branch name doesn't match required format"]}
+              return {errors: ["Branch name doesn't match required format"]};
             }
 
       - name: Validate Title
@@ -41,9 +41,8 @@ jobs:
         with:
           script: |
             core.info("Pull request title: " + context.payload.pull_request.title);
-      
+
       - uses: actions/github-script@v3
         with:
           script: |
             core.info("Input: ${{ steps.validate-branch.outputs.result }}");
-            
