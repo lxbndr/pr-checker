@@ -32,7 +32,7 @@ jobs:
               }
             }
             else {
-              
+              return {errors: ["Branch name doesn't match required format"]};
             }
 
       - name: Validate Title
