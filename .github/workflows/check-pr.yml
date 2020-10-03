@@ -62,7 +62,7 @@ jobs:
             core.info("Branch prefix: " + branchPrefix);
             
             const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
-            const result = branchRegExp.exec(branch);
+            const result = anchorRegExp.exec(branch);
             if (branchPrefix != "test" && prefix != "merge" && result == null) {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
             }
