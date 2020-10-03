@@ -18,6 +18,7 @@ jobs:
           script: |
             const branch = context.payload.pull_request.head.ref;
             core.info("Branch: " + branch);
+            
             const branchRegExp = RegExp('^(fix|feature|test|merge)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
             const result = branchRegExp.exec(branch);
             if (result != null) {
@@ -29,11 +30,14 @@ jobs:
               core.exportVariable("BRANCH_PREFIX", prefix);
               
               if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Task anchor is required"]}));
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required"]}));
+              }
+              else {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: []}));
               }
             }
             else {
-              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch name doesn't match required format"]}));
+              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: name doesn't match required format"]}));
             }
 
       - name: Validate Title
@@ -42,12 +46,33 @@ jobs:
         with:
           script: |
             const branchPrefix = process.env.BRANCH_PREFIX;
+            if (branchPrefix == undefined) {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
+              return;
+            }
+            
             core.info("Pull request title: " + context.payload.pull_request.title);
             core.info("Branch prefix: " + branchPrefix);
-
+            
+            const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
+            const result = branchRegExp.exec(branch);
+            if (branchPrefix != "test" && prefix != "merge" && result == null) {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
+            }
+            else {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
+            }
+            
       - uses: actions/github-script@v3
         
         with:
           script: |
             const branchResult = JSON.parse(process.env.BRANCH_RESULT);
-            core.info("Input: " + branchResult.errors[0]);
+            const titleResult = JSON.parse(process.env.TITLE_RESULT);
+            const allErrors = branchResult.errors + titleResult.errors;
+            allErrors.forEach(function(errorDescription) {
+              core.error(errorDescription);
+            });
+            if (allErrors.length > 0) {
+              core.setFailed("Validation failed, see generated errors");
+            }
