@@ -5,14 +5,83 @@ name: Validate Pull Request
 on:
   pull_request:
     branches: [ '*' ]
-
+    types: [opened, reopened, edited, synchronize]
+    
 jobs:
   validate:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate Branch
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            core.info("Branch: " + branch);
+            
+            const branchRegExp = RegExp('^([a-z]+)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
+            const result = branchRegExp.exec(branch);
+            if (result != null) {
+              const prefix = result[1];
+              const anchor = result[2];
+              const description = result[3];
+              core.info("Prefix: " + prefix);
+              core.info("Anchor: " + anchor);
+              core.info("Descrption: " + description);
+              
+              core.exportVariable("BRANCH_PREFIX", prefix);
+              
+              if (prefix != "fix" && prefix != "feature" && prefix != "merge" && prefix != "test") {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
+              }
+              else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix + "'"]}));
+              }
+              else if (description == undefined) {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: description part is required"]}));
+              }
+              else {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: []}));
+              }
+            }
+            else {
+              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: name doesn't match required format"]}));
+            }
+
+      - name: Validate Title
+        id: validate-title
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const branchPrefix = process.env.BRANCH_PREFIX;
+            if (branchPrefix == undefined) {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
+              return;
+            }
+            
+            core.info("Pull request title: " + title);
+            core.info("Branch prefix: " + branchPrefix);
+            
+            const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
+            const result = anchorRegExp.exec(title);
+            if (branchPrefix != "test" && branchPrefix != "merge" && result == null) {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
+            }
+            else {
+              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
+            }
+
       - uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            return 1
+            const branchResult = JSON.parse(process.env.BRANCH_RESULT);
+            const titleResult = JSON.parse(process.env.TITLE_RESULT);
+            const allErrors = branchResult.errors.concat(titleResult.errors);
+            
+            allErrors.forEach(function(errorDescription) {
+              core.error(errorDescription);
+            });
+            if (allErrors.length > 0) {
+              core.setFailed("Validation failed, see generated errors");
+            }
