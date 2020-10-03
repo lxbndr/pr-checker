@@ -28,7 +28,7 @@ jobs:
             }
             else {
               core.info("Branch name doesn't match required format");
-              core.setOuput("result", false);
+              core.setOutput("result", false);
               core.exportVariable("PR_BRANCH_CHECK", "failed");
             }
 
