@@ -26,6 +26,8 @@ jobs:
               core.info("Prefix: " + result[1]);
               core.info("Anchor: " + result[2]);
               
+              core.exportVariable("BRANCH_PREFIX", prefix);
+              
               if (prefix != "test" && prefix != "merge" && anchor == undefined) {
                 core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Task anchor is required"]}));
               }
@@ -39,7 +41,9 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
+            const branchPrefix = process.env.BRANCH_PREFIX;
             core.info("Pull request title: " + context.payload.pull_request.title);
+            core.info("Branch prefix: " + branchPrefix);
 
       - uses: actions/github-script@v3
         
