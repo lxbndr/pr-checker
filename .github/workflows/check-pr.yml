@@ -52,26 +52,26 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
+            const title = context.payload.pull_request.title;
             const branchPrefix = process.env.BRANCH_PREFIX;
             if (branchPrefix == undefined) {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
               return;
             }
             
-            core.info("Pull request title: " + context.payload.pull_request.title);
+            core.info("Pull request title: " + title);
             core.info("Branch prefix: " + branchPrefix);
             
             const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
-            const result = anchorRegExp.exec(branch);
+            const result = anchorRegExp.exec(title);
             if (branchPrefix != "test" && prefix != "merge" && result == null) {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
             }
             else {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
             }
-            
+
       - uses: actions/github-script@v3
-        
         with:
           script: |
             const branchResult = JSON.parse(process.env.BRANCH_RESULT);
