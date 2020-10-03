@@ -24,9 +24,10 @@ jobs:
             if (result != null) {
               const prefix = result[1];
               const anchor = result[2];
-              core.info("Prefix: " + result[1]);
-              core.info("Anchor: " + result[2]);
-              core.info("Descrption: " + result[3]);
+              const description = result[3];
+              core.info("Prefix: " + prefix);
+              core.info("Anchor: " + anchor);
+              core.info("Descrption: " + description);
               
               core.exportVariable("BRANCH_PREFIX", prefix);
               
