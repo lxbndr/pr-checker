@@ -14,6 +14,7 @@ jobs:
     steps:
       - name: Validate Branch
         id: validate_branch
+        continue-on-error: true
         uses: actions/github-script@v3
         with:
           script: |
@@ -27,8 +28,7 @@ jobs:
               core.exportVariable("PR_BRANCH_CHECK", "success");
             }
             else {
-              core.info("Branch name doesn't match required format");
-              return {errors: ["Branch name doesn't match required format"], warnings: []}
+              core.error("Branch name doesn't match required format");
             }
 
       - name: Validate Title
@@ -39,10 +39,10 @@ jobs:
             core.info("Pull request title: " + context.payload.pull_request.title);
             core.exportVariable("PR_TITLE_CHECK", "failed");
       
-      - uses: actions/github-script@v3
-        with:
-          script: |
-            core.info("Input: ${{ steps.validate_branch.outputs.res }}");
-            if (process.env.PR_BRANCH_CHECK == "failed" || process.env.PR_TITLE_CHECK == "failed") {
-              core.setFailed("Pull request doesn't meet the requirements");
-            }
+#       - uses: actions/github-script@v3
+#         with:
+#           script: |
+#             core.info("Input: ${{ steps.validate_branch.outputs.res }}");
+#             if (process.env.PR_BRANCH_CHECK == "failed" || process.env.PR_TITLE_CHECK == "failed") {
+#               core.setFailed("Pull request doesn't meet the requirements");
+#             }
