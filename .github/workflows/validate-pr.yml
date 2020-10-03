@@ -17,7 +17,13 @@ jobs:
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
+            const isBackstage = (function() {
+              return context.payload.pull_request.find(function(label) {
+                return label.name == "backstage";
+              }) != undefined;
+            })();
             core.info("Branch: " + branch);
+            core.info("Backstage: " + isBackstage);
             
             const branchRegExp = RegExp('^([a-z]+)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
             const result = branchRegExp.exec(branch);
