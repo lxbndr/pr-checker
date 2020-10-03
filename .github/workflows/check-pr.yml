@@ -28,10 +28,8 @@ jobs:
             }
             else {
               core.info("Branch name doesn't match required format");
-              core.setOutput("res", "false");
-              core.exportVariable("PR_BRANCH_CHECK", "failed");
+              return {errors: ["Branch name doesn't match required format"], warnings: []}
             }
-            return "AAA"
 
       - name: Validate Title
         id: validate-title
