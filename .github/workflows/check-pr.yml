@@ -19,18 +19,25 @@ jobs:
             const branch = context.payload.pull_request.head.ref;
             core.info("Branch: " + branch);
             
-            const branchRegExp = RegExp('^(fix|feature|test|merge)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
+            const branchRegExp = RegExp('^([a-z]+)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
             const result = branchRegExp.exec(branch);
             if (result != null) {
               const prefix = result[1];
               const anchor = result[2];
               core.info("Prefix: " + result[1]);
               core.info("Anchor: " + result[2]);
+              core.info("Descrption: " + result[3]);
               
               core.exportVariable("BRANCH_PREFIX", prefix);
               
-              if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required"]}));
+              if (prefix != "fix" && prefix != "feature" && prefix != "merge" && prefix != "test") {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
+              }
+              else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix "'"]}));
+              }
+              else if (description == undefined) {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: description part is required"]}));
               }
               else {
                 core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: []}));
