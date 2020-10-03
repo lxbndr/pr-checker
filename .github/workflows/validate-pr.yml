@@ -25,33 +25,44 @@ jobs:
             core.info("Branch: " + branch);
             core.info("Backstage: " + isBackstage);
             
-            const branchRegExp = RegExp('^([a-z]+)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
-            const result = branchRegExp.exec(branch);
-            if (result != null) {
-              const prefix = result[1];
-              const anchor = result[2];
-              const description = result[3];
-              core.info("Prefix: " + prefix);
-              core.info("Anchor: " + anchor);
-              core.info("Descrption: " + description);
-              
-              core.exportVariable("BRANCH_PREFIX", prefix);
-              
-              if (prefix != "fix" && prefix != "feature" && prefix != "merge" && prefix != "test") {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
-              }
-              else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix + "'"]}));
-              }
-              else if (description == undefined) {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: description part is required"]}));
-              }
-              else {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: []}));
+            core.exportVariable("IS_BACKSTAGE", isBackstage);
+            
+            if (isBackstage) {
+              const branchRegExp = RegExp('^([A-Za-z0-9.#/-])*$', 'g');
+              const result = branchRegExp.exec(branch);
+              if (result == null) {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: name doesn't match required format"]}));
               }
             }
             else {
-              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: name doesn't match required format"]}));
+              const branchRegExp = RegExp('^([a-z]+)\/(AB-[0-9]+-)*([a-z0-9]+(([\-\.])?[a-z0-9]+)*)*$', 'g');
+              const result = branchRegExp.exec(branch);
+              if (result != null) {
+                const prefix = result[1];
+                const anchor = result[2];
+                const description = result[3];
+                core.info("Prefix: " + prefix);
+                core.info("Anchor: " + anchor);
+                core.info("Descrption: " + description);
+
+                core.exportVariable("BRANCH_PREFIX", prefix);
+
+                if (prefix != "fix" && prefix != "feature" && prefix != "merge" && prefix != "test") {
+                  core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
+                }
+                else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
+                  core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix + "'"]}));
+                }
+                else if (description == undefined) {
+                  core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: description part is required"]}));
+                }
+                else {
+                  core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: []}));
+                }
+              }
+              else {
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: name doesn't match required format"]}));
+              }
             }
 
       - name: Validate Title
@@ -61,7 +72,8 @@ jobs:
           script: |
             const title = context.payload.pull_request.title;
             const branchPrefix = process.env.BRANCH_PREFIX;
-            if (branchPrefix == undefined) {
+            const isBackstage = process.env.IS_BACKSTAGE == "true";
+            if (branchPrefix == undefined || isBackstage) {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
               return;
             }
