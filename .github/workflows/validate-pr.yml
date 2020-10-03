@@ -65,7 +65,7 @@ jobs:
             
             const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
             const result = anchorRegExp.exec(title);
-            if (branchPrefix != "test" && branchPrefix != "merge" && result == null) {
+            if (branchPrefix != "test" && branchPrefix != "merge" && (result == null || result[0] == "")) {
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
             }
             else {
