@@ -45,4 +45,5 @@ jobs:
       - uses: actions/github-script@v3
         with:
           script: |
-            core.info("Input: ${{ steps.validate-branch.outputs.result }}");
+            const branchResult = JSON.parse('${{ steps.validate-branch.outputs.result }}');
+            core.info("Input: " + branchResult);
