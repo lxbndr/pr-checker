@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Validate Branch 2
         run: |
-          echo "Branch: ${{context.payload.pull_request.head.ref}}"
+          echo "Branch: ${{github.event.pull_request.head.ref}}"
 
       - name: Validate Branch
         id: validate-branch
