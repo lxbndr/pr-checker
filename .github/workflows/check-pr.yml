@@ -31,7 +31,7 @@ jobs:
               }
             }
             else {
-              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Task anchor is required"]}));
+              core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch name doesn't match required format"]}));
             }
 
       - name: Validate Title
@@ -46,4 +46,4 @@ jobs:
         with:
           script: |
             const branchResult = JSON.parse(process.env.BRANCH_RESULT);
-            core.info("Input: " + branchResult);
+            core.info("Input: " + branchResult.errors[0]);
