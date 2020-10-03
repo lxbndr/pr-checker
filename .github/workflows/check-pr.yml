@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate Branch 2
+        run: |
+          echo "Branch: ${{context.payload.pull_request.head.ref}}"
+
       - name: Validate Branch
         id: validate-branch
         uses: actions/github-script@v3
