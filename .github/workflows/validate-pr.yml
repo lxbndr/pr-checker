@@ -18,7 +18,7 @@ jobs:
           script: |
             const branch = context.payload.pull_request.head.ref;
             const isBackstage = (function() {
-              return context.payload.pull_request.find(function(label) {
+              return context.payload.pull_request.labels.find(function(label) {
                 return label.name == "backstage";
               }) != undefined;
             })();
