@@ -34,7 +34,7 @@ jobs:
                 core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
               }
               else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix "'"]}));
+                core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: task anchor is required for '" + prefix + "'"]}));
               }
               else if (description == undefined) {
                 core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: description part is required"]}));
