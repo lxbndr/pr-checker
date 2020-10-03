@@ -37,14 +37,14 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            core.info("Pull  request title: " + context.payload.pull_request.title);
+            core.info("Pull request title: " + context.payload.pull_request.title);
             core.exportVariable("PR_TITLE_CHECK", "failed");
       
       - uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            core.info("Input: ${stepsvalidate-title.outputs.result}");
+            core.info("Input: ${{stepsvalidate-title.outputs.result}}");
             if (process.env.PR_BRANCH_CHECK == "failed" || process.env.PR_TITLE_CHECK == "failed") {
               core.setFailed("Pull request doesn't meet the requirements");
             }
