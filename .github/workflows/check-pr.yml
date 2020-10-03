@@ -27,7 +27,7 @@ jobs:
               core.info("Prefix: " + result[1]);
               core.info("Anchor: " + result[2]);
               
-              if prefix != "test" && prefix != "merge" && anchor == undefined {
+              if (prefix != "test" && prefix != "merge" && anchor == undefined) {
                 return {errors: ["Task anchor is required"]};
               }
             }
