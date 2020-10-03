@@ -28,11 +28,11 @@ jobs:
               core.info("Anchor: " + result[2]);
               
               if (prefix != "test" && prefix != "merge" && anchor == undefined) {
-                return {errors: ["Task anchor is required"]};
+                
               }
             }
             else {
-              return {errors: ["Branch name doesn't match required format"]};
+              
             }
 
       - name: Validate Title
