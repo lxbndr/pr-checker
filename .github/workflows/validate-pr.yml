@@ -50,7 +50,7 @@ jobs:
 
                 core.exportVariable("BRANCH_PREFIX", prefix);
 
-                if (["fix", "feature", "merge", "test"].indexOf(prefix) >= 0) {
+                if (["fix", "feature", "merge", "test"].indexOf(prefix) < 0) {
                   core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
                 }
                 else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
@@ -97,7 +97,7 @@ jobs:
                 const body = result[4];
                 
                 if (prefix != undefined) {
-                  if (["[DNM]", "[WIP]", "[RFC]", "[SKIP CI]"].indexOf(prefix) >= 0) {
+                  if (["[DNM]", "[WIP]", "[RFC]", "[SKIP CI]"].indexOf(prefix) < 0) {
                     errors.push("Title: invalid prefix");
                   }
                 }
