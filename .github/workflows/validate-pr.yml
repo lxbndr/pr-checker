@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Validate Pull Request
 
 on:
@@ -50,7 +48,7 @@ jobs:
 
                 core.exportVariable("BRANCH_PREFIX", prefix);
 
-                if (prefix != "fix" && prefix != "feature" && prefix != "merge" && prefix != "test") {
+                if (["fix", "feature", "merge", "test"].indexOf(prefix) < 0) {
                   core.exportVariable("BRANCH_RESULT", JSON.stringify({errors: ["Branch: prefix should be either 'fix', 'feature', 'test' or 'merge'"]}));
                 }
                 else if (prefix != "test" && prefix != "merge" && anchor == undefined) {
@@ -69,7 +67,6 @@ jobs:
             }
 
       - name: Validate Title
-        id: validate-title
         uses: actions/github-script@v3
         with:
           script: |
@@ -84,14 +81,36 @@ jobs:
             core.info("Pull request title: " + title);
             core.info("Branch prefix: " + branchPrefix);
             
-            const anchorRegExp = RegExp('^(AB#[0-9]+ - )?', 'g');
+            var errors = [];
+            const anchorRegExp = RegExp('^(\[[A-Z]\])?((?:AB#[0-9]+)(?:, AB#[0-9]+){0,})?( - )?(.*)?', 'g');
             const result = anchorRegExp.exec(title);
-            if (branchPrefix != "test" && branchPrefix != "merge" && (result == null || result[0] == "")) {
-              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: task anchor is required"]}));
+            if (branchPrefix != "test" && branchPrefix != "merge") {            
+              if (result == null) {
+                errors.push("Title: wrong format");
+              }
+              else {
+                const prefix = result[1];
+                const anchors = result[2];
+                const delimiter = result[3];
+                const body = result[4];
+                
+                if (prefix != undefined) {
+                  if (["[DNM]", "[WIP]", "[RFC]", "[SKIP CI]"].indexOf(prefix) < 0) {
+                    errors.push("Title: invalid prefix");
+                  }
+                }
+                if (result[2] == undefined) {
+                  errors.push("Title: one or more task anchors are required");
+                }
+                if (result[3] == undefined) {
+                  errors.push("Title: ' - ' delimiter is required before title body");
+                }
+                if (result[4] == undefined) {
+                  errors.push("Title: body is required");
+                }
+              }
             }
-            else {
-              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
-            }
+            core.exportVariable("TITLE_RESULT", JSON.stringify({errors: errors}));
 
       - uses: actions/github-script@v3
         with:
@@ -104,5 +123,5 @@ jobs:
               core.error(errorDescription);
             });
             if (allErrors.length > 0) {
-              core.setFailed("Validation failed, see generated errors");
+              core.setFailed("Validation failed, see generated errors.");
             }
