@@ -84,15 +84,23 @@ jobs:
             core.info("Pull request title: " + title);
             core.info("Branch prefix: " + branchPrefix);
             
-            const anchorRegExp = RegExp('^((?:AB#\d+)(?:, AB#\d+){0,})( - )', 'g');
+            var errors = [];
+            const anchorRegExp = RegExp('^((?:AB#[0-9]+)(?:, AB#[0-9]+){0,})?( - )?', 'g');
             const result = anchorRegExp.exec(title);
-            if (branchPrefix != "test" && branchPrefix != "merge" && (result == null || result[0] == "")) {
-              console.log(result)
-              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: one or more task anchors are required"]}));
+            if (branchPrefix != "test" && branchPrefix != "merge") {            
+              if (result == null) {
+                errors.push("Title: wrong format");
+              }
+              else {
+                if (result[1] == undefined) {
+                  errors.push("Title: one or more task anchors are required");
+                }
+                if (result[2] == undefined) {
+                  errors.push("Title: ' - ' delimiter is required before title body");
+                }
+              }
             }
-            else {
-              core.exportVariable("TITLE_RESULT", JSON.stringify({errors: []}));
-            }
+            core.exportVariable("TITLE_RESULT", JSON.stringify({errors: errors}));
 
       - uses: actions/github-script@v3
         with:
