@@ -84,9 +84,10 @@ jobs:
             core.info("Pull request title: " + title);
             core.info("Branch prefix: " + branchPrefix);
             
-            const anchorRegExp = RegExp('^((?:AB#\d+)(?:, AB#\d+){0,})', 'g');
+            const anchorRegExp = RegExp('^((?:AB#\d+)(?:, AB#\d+){0,})( - )', 'g');
             const result = anchorRegExp.exec(title);
             if (branchPrefix != "test" && branchPrefix != "merge" && (result == null || result[0] == "")) {
+              console.log(result)
               core.exportVariable("TITLE_RESULT", JSON.stringify({errors: ["Title: one or more task anchors are required"]}));
             }
             else {
